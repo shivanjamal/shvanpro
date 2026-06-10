@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بزانیاری گەیشتن — dev.log</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000000;
+      color: #e6e6e6;
+      font-family: 'Noto Sans Arabic', 'JetBrains Mono', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 500px;
+      padding: 2rem;
+    }
+
+    .badge-soon {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(88, 166, 255, 0.1);
+      color: #58a6ff;
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #ffffff;
+      line-height: 1.4;
+    }
+
+    .message {
+      font-size: 1rem;
+      color: #8b949e;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .loading-dots {
+      display: inline-flex;
+      gap: 6px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background-color: #58a6ff;
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+    .dot:nth-child(1) { animation-delay: -0.32s; }
+    .dot:nth-child(2) { animation-delay: -0.16s; }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a1a1a;
+      color: #ffffff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: 1px solid #30363d;
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: #21262d;
+      border-color: #8b949e;
+      transform: translateY(-2px);
+    }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1.0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="badge-soon">
+      <span class="iconify" data-icon="mdi:clock-outline"></span>
+      بزانیاری گەیشتن
+    </div>
+    
+    <div class="title">پڕۆژە د ڕەوشا گەشەپێدانێ دایە</div>
+    
+    <div class="message">
+      هیڤی دکەین چاوەڕێ بن، کۆد و زانیاریێن ڤی پڕۆژەی ل سەر گیت‌هەب هێشتا نەهاتینە تەمامکرن و دێ د دەمەکێ نێزیک دا هێنە زێدەکرن.
+      <span class="loading-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </span>
+    </div>
+    
+    <a href="index.html#projects" class="back-btn">
+      <span class="iconify" data-icon="mdi:arrow-right"></span>
+      زڤراند بۆ لاپەرئ سەرەکی
+    </a>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dev.log — بلۆگی شڤان جەمال</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #000000;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2a2a2a;
+    --bg-card: #1a1a1a;
+    --bg-code: #0d1117;
+    --text-primary: #e6e6e6;
+    --text-secondary: #999999;
+    --text-muted: #666666;
+    --accent-green: #00FF00;
+    --accent-blue: #00D7FF;
+    --accent-green-dim: rgba(0, 255, 0, 0.15);
+    --accent-blue-dim: rgba(0, 215, 255, 0.15);
+    --border: #333333;
+    --border-light: #2a2a2a;
+    --font-sans: 'Noto Sans Arabic', 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+  /* ========== NAVIGATION ========== */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-light);
+    transition: all 0.3s;
+    direction: ltr;
+  }
+  .nav.scrolled { background: rgba(0,0,0,0.95); }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 0 24px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: var(--font-mono); font-weight: 800; font-size: 20px;
+    color: var(--text-primary); text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-logo .cursor {
+    display: inline-block; width: 8px; height: 20px;
+    background: var(--accent-green); margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .nav-links { display: flex; gap: 8px; align-items: center; }
+  .nav-links a {
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+    color: var(--text-secondary); text-decoration: none;
+    padding: 6px 14px; border-radius: 6px;
+    transition: all 0.25s;
+  }
+  .nav-links a:hover, .nav-links a.active {
+    color: var(--accent-green); background: var(--accent-green-dim);
+  }
+  .nav-hamburger {
+    display: none; background: none; border: none; color: var(--text-primary);
+    font-size: 24px; cursor: pointer; padding: 4px;
+  }
+
+  .mobile-menu {
+    display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.98); z-index: 99;
+    flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: var(--font-sans); font-size: 18px; font-weight: 600;
+    color: var(--text-secondary); text-decoration: none;
+    padding: 12px 32px; border-radius: 8px; transition: all 0.25s;
+  }
+  .mobile-menu a:hover { color: var(--accent-green); background: var(--accent-green-dim); }
+
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .nav-hamburger { display: block; }
+  }
+
+  /* ========== HERO ========== */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 100px 24px 80px; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 30% 50%, rgba(0,255,0,0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 50%, rgba(0,215,255,0.03) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  }
+  .hero-inner {
+    max-width: 800px; text-align: center; position: relative; z-index: 1;
+  }
+  .hero-avatar {
+    width: 110px; height: 110px; border-radius: 50%;
+    border: 2px solid var(--accent-green); margin: 0 auto 28px;
+    overflow: hidden; position: relative;
+    box-shadow: 0 0 40px rgba(0,255,0,0.15);
+  }
+  .hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .hero-status {
+    position: absolute; bottom: 4px; right: 4px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent-green); border: 3px solid var(--bg-primary);
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0% { box-shadow: 0 0 0 0 rgba(0,255,0,0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(0,255,0,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,255,0,0); }
+  }
+
+  .hero-greeting {
+    font-family: var(--font-mono); font-size: 14px; color: var(--accent-green); font-weight: 500;
+    letter-spacing: 0.1em; margin-bottom: 16px;
+    direction: ltr;
+  }
+  .hero-name {
+    font-family: var(--font-sans); font-size: 52px; font-weight: 900;
+    line-height: 1.2; margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 0%, #999 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-title {
+    font-family: var(--font-sans); font-size: 17px; font-weight: 400;
+    color: var(--accent-blue); margin-bottom: 24px;
+  }
+  .hero-bio {
+    font-size: 15px; color: var(--text-secondary); max-width: 580px;
+    margin: 0 auto 32px; line-height: 2;
+  }
+
+  .hero-terminal {
+    background: var(--bg-code); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; max-width: 540px;
+    margin: 0 auto 36px; text-align: left;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    direction: ltr;
+  }
+  .terminal-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px; background: #161b22;
+    border-bottom: 1px solid var(--border);
+  }
+  .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .terminal-dot.red { background: #ff5f57; }
+  .terminal-dot.yellow { background: #febc2e; }
+  .terminal-dot.green { background: #28c840; }
+  .terminal-title {
+    font-size: 12px; color: var(--text-muted); margin-left: 8px;
+    font-family: var(--font-mono);
+  }
+  .terminal-body { padding: 16px 20px; font-size: 13px; line-height: 2; font-family: var(--font-mono); }
+  .terminal-line { display: flex; gap: 0; }
+  .terminal-prompt { color: var(--accent-green); white-space: pre; }
+  .terminal-cmd { color: var(--text-primary); }
+  .terminal-output { color: var(--text-secondary); padding-left: 18px; }
+  .terminal-cursor {
+    display: inline-block; width: 8px; height: 16px;
+    background: var(--accent-green); vertical-align: middle; margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+
+  .hero-socials { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .social-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 8px; font-size: 13px;
+    font-family: var(--font-sans); font-weight: 500;
+    text-decoration: none; transition: all 0.3s; cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg-secondary);
+    color: var(--text-secondary);
+  }
+  .social-btn:hover {
+    border-color: var(--accent-green); color: var(--accent-green);
+    box-shadow: 0 0 20px rgba(0,255,0,0.1);
+    transform: translateY(-2px);
+  }
+  .social-btn.primary {
+    background: var(--accent-green); color: #000; border-color: var(--accent-green);
+    font-weight: 600;
+  }
+  .social-btn.primary:hover {
+    background: #00cc00; box-shadow: 0 0 30px rgba(0,255,0,0.3);
+  }
+
+  /* ========== SECTION COMMON ========== */
+  .section {
+    padding: 100px 24px; max-width: 1200px; margin: 0 auto;
+  }
+  .section-label {
+    font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--accent-blue);
+    margin-bottom: 12px; direction: ltr; text-align: right;
+  }
+  .section-title {
+    font-family: var(--font-sans); font-size: 36px; font-weight: 800;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .section-desc {
+    font-size: 15px; color: var(--text-secondary); max-width: 520px;
+    margin-bottom: 48px; line-height: 2;
+  }
+  .divider {
+    height: 1px; background: var(--border-light); max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ========== TAG FILTER ========== */
+  .tag-filter {
+    display: flex; gap: 8px; margin-bottom: 40px; flex-wrap: wrap;
+  }
+  .tag-btn {
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+    padding: 8px 18px; border-radius: 20px; cursor: pointer;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text-secondary); transition: all 0.25s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .tag-btn:hover { border-color: var(--text-muted); color: var(--text-primary); }
+  .tag-btn.active {
+    background: var(--accent-green); color: #000;
+    border-color: var(--accent-green); font-weight: 600;
+  }
+
+  /* ========== ARTICLE CARDS ========== */
+  .articles-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  @media (max-width: 480px) {
+    .articles-grid { grid-template-columns: 1fr; }
+  }
+  .article-card {
+    background: var(--bg-card); border: 1px solid var(--border-light);
+    border-radius: 12px; overflow: hidden; cursor: pointer;
+    transition: all 0.35s; position: relative;
+  }
+  .article-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+    opacity: 0; transition: opacity 0.35s;
+  }
+  .article-card:hover {
+    border-color: var(--border); transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  }
+  .article-card:hover::before { opacity: 1; }
+
+  .article-code-preview {
+    background: var(--bg-code); padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    font-family: var(--font-mono); font-size: 12px; line-height: 1.8; overflow-x: auto;
+    max-height: 120px; overflow: hidden; position: relative;
+    direction: ltr; text-align: left;
+  }
+  .article-code-preview::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+    background: linear-gradient(transparent, var(--bg-code));
+  }
+  .article-body { padding: 24px; }
+  .article-tags { display: flex; gap: 6px; margin-bottom: 12px; }
+  .article-tag {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 4px; font-family: var(--font-sans);
+  }
+  .article-tag.frontend { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .article-tag.backend { background: var(--accent-green-dim); color: var(--accent-green); }
+  .article-tag.tools { background: rgba(255,165,0,0.15); color: #FFA500; }
+
+  .article-title {
+    font-family: var(--font-sans); font-size: 17px; font-weight: 700;
+    margin-bottom: 8px; line-height: 1.6; color: var(--text-primary);
+  }
+  .article-excerpt {
+    font-size: 13px; color: var(--text-secondary); line-height: 1.8;
+    margin-bottom: 16px;
+  }
+  .article-meta {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .article-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* ========== ARTICLE DETAIL MODAL ========== */
+  .article-modal {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
+    overflow-y: auto; padding: 80px 24px;
+  }
+  .article-modal.open { display: block; }
+  .article-modal-close {
+    position: fixed; top: 20px; left: 24px; z-index: 201;
+    background: var(--bg-tertiary); border: 1px solid var(--border);
+    color: var(--text-primary); width: 40px; height: 40px;
+    border-radius: 8px; cursor: pointer; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s;
+  }
+  .article-modal-close:hover {
+    background: var(--accent-green); color: #000; border-color: var(--accent-green);
+  }
+  .article-detail {
+    max-width: 780px; margin: 0 auto;
+    animation: fadeUp 0.4s ease-out;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .article-detail-tags { display: flex; gap: 8px; margin-bottom: 20px; }
+  .article-detail-title {
+    font-family: var(--font-sans); font-size: 34px; font-weight: 800;
+    line-height: 1.4; margin-bottom: 16px;
+  }
+  .article-detail-meta {
+    display: flex; gap: 20px; font-size: 13px; color: var(--text-muted);
+    margin-bottom: 40px; padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .article-detail-content { font-size: 15px; line-height: 2; color: #ccc; }
+  .article-detail-content h2 {
+    font-family: var(--font-sans); font-size: 24px; font-weight: 700;
+    margin: 40px 0 16px; color: var(--text-primary);
+  }
+  .article-detail-content h3 {
+    font-family: var(--font-sans); font-size: 18px; font-weight: 600;
+    margin: 32px 0 12px; color: var(--text-primary);
+  }
+  .article-detail-content p { margin-bottom: 16px; }
+  .article-detail-content ul, .article-detail-content ol {
+    margin-bottom: 16px; padding-right: 24px; padding-left: 0;
+  }
+  .article-detail-content li { margin-bottom: 8px; }
+  .article-detail-content strong { color: var(--text-primary); font-weight: 600; }
+
+  .code-block {
+    background: var(--bg-code); border: 1px solid var(--border-light);
+    border-radius: 10px; overflow: hidden; margin: 24px 0;
+    direction: ltr; text-align: left;
+  }
+  .code-block-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; background: #161b22;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .code-block-lang {
+    font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);
+    font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .code-copy-btn {
+    font-size: 12px; color: var(--text-muted); background: none;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 2px 10px; cursor: pointer; font-family: var(--font-mono);
+    transition: all 0.2s; display: flex; align-items: center; gap: 4px;
+  }
+  .code-copy-btn:hover { color: var(--accent-green); border-color: var(--accent-green); }
+  .code-block pre {
+    padding: 20px; overflow-x: auto; font-size: 13px; line-height: 1.8;
+    font-family: var(--font-mono); margin: 0;
+  }
+
+  .article-detail-content code:not(pre code) {
+    background: var(--bg-tertiary); padding: 2px 8px; border-radius: 4px;
+    font-size: 13px; color: var(--accent-blue); font-family: var(--font-mono);
+    direction: ltr; display: inline-block;
+  }
+
+  /* Syntax highlighting */
+  .syn-kw { color: #ff7b72; }
+  .syn-str { color: #a5d6ff; }
+  .syn-fn { color: #d2a8ff; }
+  .syn-cm { color: #8b949e; }
+  .syn-num { color: #79c0ff; }
+  .syn-type { color: #ffa657; }
+  .syn-op { color: #ff7b72; }
+  .syn-var { color: #e6e6e6; }
+  .syn-prop { color: #7ee787; }
+  .syn-tag { color: #7ee787; }
+  .syn-attr { color: #79c0ff; }
+  .syn-punc { color: #8b949e; }
+
+  /* ========== PROJECTS ========== */
+  .projects-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  @media (max-width: 480px) {
+    .projects-grid { grid-template-columns: 1fr; }
+  }
+  .repo-card {
+    background: var(--bg-card); border: 1px solid var(--border-light);
+    border-radius: 12px; padding: 24px; transition: all 0.35s;
+    overflow: hidden;
+  }
+  .repo-card-img {
+    width: calc(100% + 48px);
+    margin: -24px -24px 20px -24px;
+    height: 160px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .repo-card:hover {
+    border-color: var(--border); transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  }
+  .repo-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .repo-icon { color: var(--text-muted); font-size: 18px; }
+  .repo-name {
+    font-family: var(--font-mono); font-size: 15px; font-weight: 700;
+    color: var(--accent-blue); text-decoration: none;
+    direction: ltr;
+  }
+  .repo-name:hover { text-decoration: underline; }
+  .repo-desc {
+    font-size: 13px; color: var(--text-secondary); line-height: 1.8;
+    margin-bottom: 16px;
+  }
+  .repo-lang-bar {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 16px;
+  }
+  .repo-lang-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .repo-lang-name { font-size: 12px; color: var(--text-secondary); }
+  .repo-stats {
+    display: flex; gap: 16px; font-size: 12px; color: var(--text-muted);
+  }
+  .repo-stats span { display: flex; align-items: center; gap: 4px; }
+  .repo-topics { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .repo-topic {
+    font-size: 11px; padding: 2px 10px; border-radius: 20px;
+    background: rgba(0,215,255,0.08); color: var(--accent-blue);
+    border: 1px solid rgba(0,215,255,0.15); font-family: var(--font-mono);
+    direction: ltr;
+  }
+
+  /* ========== ABOUT ========== */
+  .about-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .about-grid { grid-template-columns: 1fr; gap: 40px; }
+  }
+  .about-text { font-size: 15px; color: var(--text-secondary); line-height: 2.1; }
+  .about-text p { margin-bottom: 16px; }
+  .about-text strong { color: var(--text-primary); }
+
+  .tech-stack { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .tech-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 6px; font-size: 12px;
+    font-family: var(--font-mono); font-weight: 500;
+    border: 1px solid var(--border); background: var(--bg-secondary);
+    color: var(--text-secondary); transition: all 0.25s;
+    direction: ltr;
+  }
+  .tech-badge:hover {
+    border-color: var(--accent-green); color: var(--accent-green);
+    background: var(--accent-green-dim);
+  }
+
+  .timeline { position: relative; padding-right: 24px; }
+  .timeline::before {
+    content: ''; position: absolute; right: 5px; top: 8px; bottom: 8px;
+    width: 1px; background: var(--border);
+  }
+  .timeline-item { position: relative; margin-bottom: 32px; }
+  .timeline-item:last-child { margin-bottom: 0; }
+  .timeline-dot {
+    position: absolute; right: -24px; top: 8px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--bg-primary); border: 2px solid var(--accent-green);
+  }
+  .timeline-year {
+    font-size: 11px; color: var(--accent-blue); font-family: var(--font-mono);
+    font-weight: 600; margin-bottom: 4px;
+  }
+  .timeline-role {
+    font-family: var(--font-sans); font-size: 16px; font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .timeline-company { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+  .timeline-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+
+  .contact-list { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+  .contact-item {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px; color: var(--text-secondary);
+  }
+  .contact-item .iconify { color: var(--accent-green); font-size: 18px; flex-shrink: 0; }
+  .contact-item a {
+    color: var(--accent-blue); text-decoration: none; transition: color 0.2s;
+    direction: ltr;
+  }
+  .contact-item a:hover { color: #fff; text-decoration: underline; }
+
+  /* ========== FOOTER ========== */
+  .footer {
+    border-top: 1px solid var(--border-light);
+    padding: 40px 24px; text-align: center;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .footer-inner { max-width: 1200px; margin: 0 auto; }
+  .footer-line {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; flex-wrap: wrap;
+  }
+  .footer-heart { color: var(--accent-green); }
+
+  /* ========== TOAST ========== */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--bg-tertiary); border: 1px solid var(--accent-green);
+    color: var(--accent-green); padding: 10px 24px; border-radius: 8px;
+    font-size: 13px; font-family: var(--font-sans); z-index: 300;
+    transition: transform 0.3s ease; pointer-events: none;
+    box-shadow: 0 10px 30px rgba(0,255,0,0.15);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ========== SCROLL ANIMATIONS ========== */
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-d1 { transition-delay: 100ms; }
+  .reveal-d2 { transition-delay: 200ms; }
+  .reveal-d3 { transition-delay: 300ms; }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 768px) {
+    .hero-name { font-size: 38px; }
+    .hero-title { font-size: 14px; }
+    .section-title { font-size: 28px; }
+    .article-detail-title { font-size: 24px; }
+    .article-modal { padding: 70px 16px; }
+    .article-modal-close { left: 16px; top: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== NAVIGATION ========== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <span>dev.log</span><span class="cursor"></span>
+    </a>
+    <div class="nav-links">
+      <a href="#hero" class="active" data-section="hero">سەرەکی</a>
+      <a href="#articles" data-section="articles">نڤیسین</a>
+      <a href="#projects" data-section="projects">پڕۆژە</a>
+      <a href="#about" data-section="about">دەربارەی من</a>
+    </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="لیستە">
+      <span class="iconify" data-icon="mdi:menu"></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#hero" onclick="closeMobile()">سەرەکی</a>
+  <a href="#articles" onclick="closeMobile()">نڤیسین</a>
+  <a href="#projects" onclick="closeMobile()">پرۆژە</a>
+  <a href="#about" onclick="closeMobile()">دەربارەی من</a>
+</div>
+
+<!-- ========== HERO ========== -->
+<section class="hero" id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-avatar">
+      <img src="https://i.ibb.co/d4J3gxrJ/IMG-3210.jpg" alt="شڤان جەمال">
+      <div class="hero-status"></div>
+    </div>
+    <div class="hero-greeting">سڵاڤ،</div>
+    <h1 class="hero-name">شڤان جەمال</h1>
+    <div class="hero-title">گەشەپێدەرێ فول-ستاک · پشکدارێ ئۆپن سۆرس</div>
+    <p class="hero-bio">"دنڤیسم ل سەر گەشەپێدانا وێبێ، دیزاینێ سیستەمی، و ئامرازێن گەشەپێدەری. چێکرنا تشتەکی کو ژیانا گەشەپێدەران ب ساناهیتر لێ دکەت، یەک کۆمیت د یەک دەمدا."</p>
+
+    <div class="hero-terminal">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-title">zsh — shivan@devlog</span>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-line">
+          <span class="terminal-prompt">❯ </span>
+          <span class="terminal-cmd">cat about.md</span>
+        </div>
+        <div class="terminal-output">+"+٥ ساڵێن ئەزموونێ د گەشەپێدانا فول-ستاکدا"</div>
+        <div class="terminal-output">"حەژێکرن بۆ ژێدەرێ ڤەکری و ئامرازێن گەشەپێدەری"</div>
+        <div class="terminal-output">"نوکە چێکرنا nexus-framework@"</div>
+        <div class="terminal-line">
+          <span class="terminal-prompt">❯ </span>
+          <span class="terminal-cursor"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-socials">
+      <a href="#articles" class="social-btn primary">
+        <span class="iconify" data-icon="mdi:file-document-outline"></span>
+        خواندنا بلۆگی
+      </a>
+      <a href="https://github.com/shivanjamal" target="_blank" class="social-btn">
+        <span class="iconify" data-icon="mdi:github"></span>
+        GitHub
+      </a>
+      <a href="https://twitter.com/shvanjamal" target="_blank" class="social-btn">
+        <span class="iconify" data-icon="mdi:twitter"></span>
+        تویتەر
+      </a>
+      <a href="mailto:iamshvan@gmail.com" class="social-btn">
+        <span class="iconify" data-icon="mdi:email-outline"></span>
+        ئیمەیل
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ========== ARTICLES ========== -->
+<section class="section" id="articles">
+  <div class="reveal">
+    <div class="section-label">// نڤیسین</div>
+    <h2 class="section-title">نڤیسینێن نوو</h2>
+    <p class="section-desc">هزرکرن ل سەر کۆدی، ئەرکیتێکتوورێ، و ئەزموونا گەشەپێدەری. فلتەرکرن ل دویڤ بابەتی.</p>
+  </div>
+
+  <div class="tag-filter reveal reveal-d1">
+    <button class="tag-btn active" data-tag="all">هەمی نڤیسین</button>
+    <button class="tag-btn" data-tag="frontend">
+      <span class="iconify" data-icon="mdi:language-javascript" style="font-size:14px"></span>
+      گەشەپێدانا روویێ پێشیێ
+    </button>
+    <button class="tag-btn" data-tag="backend">
+      <span class="iconify" data-icon="mdi:server" style="font-size:14px"></span>
+      گەشەپێدانا روویێ پشتی
+    </button>
+    <button class="tag-btn" data-tag="tools">
+      <span class="iconify" data-icon="mdi:wrench" style="font-size:14px"></span>
+      ئامراز
+    </button>
+  </div>
+
+  <div class="articles-grid" id="articlesGrid"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ========== PROJECTS ========== -->
+<section class="section" id="projects">
+  <div class="reveal">
+    <div class="section-label">ژێدەرێ ڤەکری</div>
+    <h2 class="section-title">پڕۆژە</h2>
+    <p class="section-desc">پڕۆژەیێن ژێدەرێ ڤەکری یێن دەستنیشانکری و پڕۆژەیێن لایەنی. پێشوازی ل پشکداریکرنێ دهێتە کرن.</p>
+  </div>
+
+  <div class="projects-grid" id="projectsGrid"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ========== ABOUT ========== -->
+<section class="section" id="about">
+  <div class="reveal">
+    <div class="section-label">// دەربارەی من</div>
+    <h2 class="section-title">ئەز کیمە</h2>
+  </div>
+
+  <div class="about-grid">
+    <div class="reveal reveal-d1">
+      <div class="about-text">
+        <p>
+          ئەز <strong>شڤان جەمال</strong>م، گەشەپێدەرێ فول-ستاک ل دهوکێ، ب پتر لە ٢ ساڵێن ئەزموونێ د چێکرنا ئەپلیکەیشنێن وێبێ و ئامرازێن گەشەپێدەریدا.
+        </p>
+        <p>
+          کاری خۆ من د ستارتئەپەکێدا دەستپێکر کو ل وێرێ گەلەک ڕۆڵێن من هەبوون — ژ نڤیسینا کۆمپۆنێنتێن فڕۆنت ئێندا React هتا دیزاینکرنا API یێن RESTful و برێڤەبرنا داتابەیسێ PostgreSQL. ئەو مێنتالێتیا 'هەمی تشتەکی بکە' دگەل من .</p>
+        <p>
+          د ڤان ڕۆژاندا، پتر گرنگیێ ددەمە...<strong>ئەزموونا گەشەپێدەری</strong> — چێکرنا ئامرازەکی کو بارێ گرانی یا کارێن گەشەپێدانێ کەم دکەت. باوەڕیا من ئەوە کو باشترین کۆد، ئەو کۆدە یێ تە نەڤێت بنڤیسی.
+        </p>
+      </div>
+
+      <div class="tech-stack-container" style="margin-top: 24px;">
+        <div style="margin-bottom: 16px;">
+          <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-family: var(--font-mono);">// Languages</h4>
+          <div class="tech-stack">
+            <span class="tech-badge"><span class="iconify" data-icon="mdi:language-typescript"></span> TypeScript</span>
+            <span class="tech-badge"><span class="iconify" data-icon="mdi:language-rust"></span> Rust</span>
+            <span class="tech-badge"><span class="iconify" data-icon="mdi:language-go"></span> Go</span>
+          </div>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-family: var(--font-mono);">// Frontend & Backend</h4>
+          <div class="tech-stack">
+            <span class="tech-badge"><span class="iconify" data-icon="mdi:react"></span> React</span>
+            <span class="tech-badge"><span class="iconify" data-icon="mdi:vuejs"></span> Vue.js</span>
+            <span class="tech-badge"><span class="iconify" data-icon="mdi:nodejs"></span> Node.js</span>
+            <span class="tech-badge"><span class="iconify" data-icon="mdi:database"></span> PostgreSQL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-d2">
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-year">٢٠٢٣ — ئێستا</div>
+          <div class="timeline-role">ئەندامی باڵا</div>
+          <div class="timeline-company">Nexus Labs — دهوک</div>
+          <div class="timeline-desc">سەرکردایەتیکرنا تیما ئامرازێن گەشەپێدەری. چێکرنا فڕەیمۆرکەکێ ژێدەرێ ڤەکری بۆ ئەپلیکەیشنێن TypeScript.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-year">2025 — 2026</div>
+          <div class="timeline-role">گەشەپێدەرێ فول-ستاک</div>
+          <div class="timeline-company">CloudForge Inc.</div>
+          <div class="timeline-desc">چێکرنا تایبەتمەندیێن هەڤپشک د دەمێ ڕاستەقینەدا، دیزاینکرنا ئەرکیتێکتوورا مایکرۆسێرڤیس، و باشترکرنا پڕۆسەیا CI/CD ب ڕێژەیا ٦٠٪.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-year">2025 — 2026</div>
+          <div class="timeline-role">گەشەپێدەرێ فڕۆنت ئێند</div>
+          <div class="timeline-company">PixelCraft Studio</div>
+          <div class="timeline-desc">گەشەپێدانا SPA ب ڕێیا React و Vue. چێکرنا لایبرەریەکا کۆمپۆنێنتان کو د ناڤ ٤ تیمێن بەرهەمی دا هاتە بکارئینان.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-year">2025 — 2026</div>
+          <div class="timeline-role">گەشەپێدەرێ سەرەتایی</div>
+          <div class="timeline-company">StartupX</div>
+          <div class="timeline-desc">گەشەپێدانا وێبێ یا فول-ستاک ب ڕێیا Node.js و MongoDB. فێربوونا بلەز د ڕەوانەکرن و دووبارەکرنێدا.</div>
+        </div>
+      </div>
+
+      <div class="contact-list">
+        <div class="contact-item">
+          <span class="iconify" data-icon="mdi:email-outline"></span>
+          <a href="mailto:iamshvan@gmail.com">iamshvan@gmail.com</a>
+        </div>
+        <div class="contact-item">
+          <span class="iconify" data-icon="mdi:github"></span>
+          <a href="https://github.com/shivanjamal" target="_blank">github.com/shivanjamal</a>
+        </div>
+        <div class="contact-item">
+          <span class="iconify" data-icon="mdi:twitter"></span>
+          <a href="https://twitter.com/iamshvan" target="_blank">@iamshvan</a>
+        </div>
+        <div class="contact-item">
+          <span class="iconify" data-icon="mdi:linkedin"></span>
+          <a href="https://www.linkedin.com/in/shvan-jamal-b785a63b5?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank">linkedin.com/in/shvanjamal</a>
+        </div>
+<div class="contact-item">
+          <span class="iconify" data-icon="mdi:instagram"></span>
+          <a href="https://www.instagram.com/iamshvan.26?igsh=NDkxNjN4bTd2eDEw&utm_source=qr" target="_blank">instagram.com/iamshvan.26</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-line">
+      <span>© 2026</span>
+      <span>·</span>
+      <span>دیزاین و دروستکرن<span class="footer-heart"></span> </span>
+      <span>·</span>
+      <span>SHVAN JAMAL</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ========== ARTICLE DETAIL MODAL ========== -->
+<div class="article-modal" id="articleModal">
+  <button class="article-modal-close" id="modalClose" aria-label="داخستن">
+    <span class="iconify" data-icon="mdi:close"></span>
+  </button>
+  <div class="article-detail" id="articleDetail"></div>
+</div>
+
+<!-- ========== TOAST ========== -->
+<div class="toast" id="toast"></div>
+
+<script>
+const articles = [
+  {
+    id: 1,
+    title: "چێکرنا ڕێڤەبەرەکێ دۆخی یێ ڕیئاکتیڤ (Reactive State Manager) د ٢٠٠ دێڕاندا",
+    excerpt: "چەوان من ڕێڤەبەرەکێ دۆخی یێ ڕیئاکتیڤ یێ بچووک بەس خودان شیانێن مەزن (Powerful) چێکر کو ژ سیگناڵێن Solid.js هاتیە وەرگرتن — بێی چ جوداهییان د ناڤبەرا پێشڤەبرن و دەپڵۆیکرنێدا (Zero-Deploy)، و دگەل پشتگیریا تەمام یا TypeScript.",
+    tag: "frontend",
+    date: "15 ێ کانوونا ئێکێ، 2025",
+    readTime: "٨ خولەک",
+    views: "٢.٤k",
+    codePreview: `<span class="syn-kw">function</span> <span class="syn-fn">createSignal</span>(<span class="syn-var">value</span>) {\n  <span class="syn-kw">const</span> <span class="syn-var">subscribers</span> = <span class="syn-kw">new</span> <span class="syn-type">Set</span>();\n  <span class="syn-kw">return</span> [\n    () => <span class="syn-var">value</span>,\n    (<span class="syn-var">v</span>) => {\n      <span class="syn-var">value</span> = <span class="syn-var">v</span>;\n      <span class="syn-var">subscribers</span>.<span class="syn-fn">forEach</span>(<span class="syn-var">fn</span> => <span class="syn-fn">fn</span>(<span class="syn-var">v</span>));\n    }\n  ];\n}`,
+    content: `
+<h2>بۆچی چێکرنا ڕێڤەبەرەکێ دۆخی یێ دی؟</h2>
+<p>پڕانیا چارەسەریێن ڕێڤەبرنا دۆخی (State Management) گەلەک ئاڵۆزی و ماندووبوونێ دگەل خۆ دئینن. Redux پێدڤی ب بۆیلەرپلەیتەکێ (Boilerplate) زێدە هەیە. MobX د بنەڕەت دا پرۆکسیان (Proxies) بکار دئینیت. Zustand باشە، بەڵام من دڤێت.<strong>یا میکانیکی یە یێن فەرمی</strong> دا تێبگەهم.</p>
+<p>ئامانج: سیستەمەکێ سیگناڵی یێ ڕیئاکتیڤ د بن ٢٠٠ دێڕێن TypeScript دا کو پشتگیریا. <strong>بهایێ وەرگرتی</strong>، <strong>نووکرنەوا باتشد</strong>، و <strong>پاککرنا ئۆتۆماتیکی</strong> بکەت.</p>
+
+<h2>بنیاتێ سیگناڵی</h2>
+<p>د بنەڕەت دا، سیگناڵ تەنێ جووتەکا گێتەر/سێتەرە (getter/setter) ب ئاگەهداریا بەکارهێنەری:</p>
+
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">TypeScript</span>
+    <button class="code-copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="mdi:content-copy"></span> Copy</button>
+  </div>
+  <pre><code><span class="syn-kw">interface</span> <span class="syn-type">Signal</span>&lt;<span class="syn-type">T</span>&gt; {
+  <span class="syn-fn">get</span>(): <span class="syn-type">T</span>;
+  <span class="syn-fn">set</span>(<span class="syn-var">value</span>: <span class="syn-type">T</span> | ((<span class="syn-var">prev</span>: <span class="syn-type">T</span>) => <span class="syn-type">T</span>)): <span class="syn-kw">void</span>;
+  <span class="syn-fn">subscribe</span>(<span class="syn-var">fn</span>: (<span class="syn-var">v</span>: <span class="syn-type">T</span>) => <span class="syn-kw">void</span>): () => <span class="syn-kw">void</span>;
+}
+
+<span class="syn-kw">export function</span> <span class="syn-fn">signal</span>&lt;<span class="syn-type">T</span>&gt;(<span class="syn-var">initial</span>: <span class="syn-type">T</span>): <span class="syn-type">Signal</span>&lt;<span class="syn-type">T</span>&gt; {
+  <span class="syn-kw">let</span> <span class="syn-var">value</span> = <span class="syn-var">initial</span>;
+  <span class="syn-kw">const</span> <span class="syn-var">subs</span> = <span class="syn-kw">new</span> <span class="syn-type">Set</span>&lt;(<span class="syn-var">v</span>: <span class="syn-type">T</span>) => <span class="syn-kw">void</span>&gt;();
+
+  <span class="syn-kw">return</span> {
+    <span class="syn-fn">get</span>: () => <span class="syn-var">value</span>,
+    <span class="syn-fn">set</span>: (<span class="syn-var">v</span>) => {
+      <span class="syn-var">value</span> = <span class="syn-kw">typeof</span> <span class="syn-var">v</span> === <span class="syn-str">'function'</span>
+        ? (<span class="syn-var">v</span> <span class="syn-kw">as</span> (<span class="syn-var">p</span>: <span class="syn-type">T</span>) => <span class="syn-type">T</span>)(<span class="syn-var">value</span>)
+        : <span class="syn-var">v</span>;
+      <span class="syn-var">subs</span>.<span class="syn-fn">forEach</span>(<span class="syn-var">fn</span> => <span class="syn-fn">fn</span>(<span class="syn-var">value</span>));
+    },
+    <span class="syn-fn">subscribe</span>: (<span class="syn-var">fn</span>) => {
+      <span class="syn-var">subs</span>.<span class="syn-fn">add</span>(<span class="syn-var">fn</span>);
+      <span class="syn-kw">return</span> () => <span class="syn-var">subs</span>.<span class="syn-fn">delete</span>(<span class="syn-var">fn</span>);
+    }
+  };
+}</code></pre>
+</div>
+
+<h2>سیگناڵێن وەرگرتی</h2>
+<p>هێزا ڕاستەقینە د<strong>سیگناڵێن کۆمپیوتکری</strong> دهێت — ئەو بهایێن ب شێوازەکێ ئۆتۆماتیکی نوو دبنەوه دەما پشتبەستنێن وان (Dependencies) دگۆهۆڕن:</p>
+
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">TypeScript</span>
+    <button class="code-copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="mdi:content-copy"></span> Copy</button>
+  </div>
+  <pre><code><span class="syn-kw">export function</span> <span class="syn-fn">computed</span>&lt;<span class="syn-type">T</span>&gt;(
+  <span class="syn-var">fn</span>: () => <span class="syn-type">T</span>
+): <span class="syn-type">Signal</span>&lt;<span class="syn-type">T</span>&gt; {
+  <span class="syn-kw">const</span> <span class="syn-var">s</span> = <span class="syn-fn">signal</span>(<span class="syn-fn">fn</span>());
+  <span class="syn-cm">// دووبارە هەڵسەنگاندن دەما هەر پشتبەستنەک دهێتە کارپێکرن</span>
+  <span class="syn-fn">trackDeps</span>(<span class="syn-var">fn</span>, () => <span class="syn-var">s</span>.<span class="syn-fn">set</span>(<span class="syn-fn">fn</span>()));
+  <span class="syn-kw">return</span> <span class="syn-var">s</span>;
+}</code></pre>
+</div>
+
+<h2>ئەنجامێن سەرەکی</h2>
+<ul>
+  <li>سیگناڵ پشکن سادەترن ژ وێ چەندا هوین هزر دکەن وایە — تەنێ <code>get/set + pub/sub</code> ە</li>
+  <li>هژمارکرنا وەرگرتی پێدڤی ب تراککرنا پشتبەستنێ (Dependency Tracking) هەیە، بەڵام پرۆکسی پێدڤی ناکەت</li>
+  <li>کۆمکرنا کاتی یا نووکرنەوان (Batching Updates) ڕێندەری کێم دکەت د فڕەیمۆرکێن UI دا</li>
+  <li>تەواو، لایبرەری دهێتە کۆمپایلکرن بۆ نێزیکی ١.٢KB مینیفاید + gzip"</li>
+</ul>
+`
+  },
+  {
+    id: 2,
+    title: "دیزاینی لیمیتەری ڕێژە بە Redis و تۆکن باکیت",
+    excerpt: "بچوونەناڤبوونا قووڵ د جێبەجێکرنا لیمیتەرێ ڕێژەیا بەلاڤبووی (Distributed Rate Limiter) ب ئەلگۆریتمێ تۆکن باکیت (Token Bucket) ب کارئینانا سکریپتێ Lua د Redis دا بۆ دەستەبەرکرنا ئاتۆمیسیتیێ (Atomicity).",
+    tag: "backend",
+    date: "8 ی کانوونا ئێکێ، 2026",
+    readTime: "١٢ خولەک",
+    views: "٣.١k",
+    codePreview: `<span class="syn-kw">local</span> <span class="syn-var">rate_key</span> = <span class="syn-str">"rate:"</span> .. <span class="syn-var">KEYS</span>[<span class="syn-num">1</span>]\n<span class="syn-kw">local</span> <span class="syn-var">tokens</span> = <span class="syn-fn">tonumber</span>(\n  <span class="syn-var">redis.call</span>(<span class="syn-str">"GET"</span>, <span class="syn-var">rate_key</span>)\n)\n<span class="syn-kw">if</span> <span class="syn-var">tokens</span> > <span class="syn-num">0</span> <span class="syn-kw">then</span>\n  <span class="syn-var">redis.call</span>(<span class="syn-str">"DECR"</span>, <span class="syn-var">rate_key</span>)\n  <span class="syn-kw">return</span> <span class="syn-num">1</span>  <span class="syn-cm">-- ڕێگەپێدراو</span>\n<span class="syn-kw">end</span>\n<span class="syn-kw">return</span> <span class="syn-num">0</span>  <span class="syn-cm">-- لیمیت کراو</span>`,
+    content: `
+<h2>ئاریشە</h2>
+<p>لیمیتەرێ ڕێژەیێ (Rate Limiter) بۆ هەر API یەکێ گشتی یێ پێدڤییە. بەڵام جێبەجێکرنا وێ ب شێوازەکێ دروست د سیستەمەکێ بەلاڤبووی دا (Distributed System) ب شێوەیەکێ سەرسوڕهێنەر ب زەحمەتە. تو پێدڤی ب:<strong>ئاتۆمیسیتی (Atomicity)</strong>، <strong>درەنگکەفتنا کێم</strong>، و <strong>ڕاستی د بن سیبەرا کۆنکەرنسی (Concurrency) دا</strong> هەیە.</p>
+<p>پشتی هەڵسەنگاندنا سلایدینگ ویندۆ لۆگ (Sliding Window Log)، فیکس ویندۆ (Fixed Window)، و لیکی باکیت (Leaky Bucket)، من ئەلگۆریتمێ هەلبژارت <strong>تۆکن باکیت (Token Bucket)</strong> بۆ تایبەتمەندیێن شێوەکرنا هاتنوچوونێ (Traffic Shaping) ل سەر.</p>
+
+<h2>بنەڕەتێن تۆکن باکیت (Token Bucket Basics</h2>
+<p>هزر د بەرمیلەکێ (Bucket) دا بکە کو ب ڕێژەیەکا جێگیر ب تۆکنان پڕ دبیتەڤە. هەر داواکاریەک (Request) تۆکنەکێ دکێشیت و دئینیتە دەرێ. ئەگەر بەرمیل بەتاڵ بیت، داواکاری دهێتە ڕەتکرن. سادەیە، بەڵام ئێجگار ب هێزە.</p>
+
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">Lua (Redis)</span>
+    <button class="code-copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="mdi:content-copy"></span> Copy</button>
+  </div>
+  <pre><code><span class="syn-cm">-- rate_limiter.lua</span>
+<span class="syn-kw">local</span> <span class="syn-var">key</span> = <span class="syn-var">KEYS</span>[<span class="syn-num">1</span>]
+<span class="syn-kw">local</span> <span class="syn-var">capacity</span> = <span class="syn-fn">tonumber</span>(<span class="syn-var">ARGV</span>[<span class="syn-num">1</span>])
+<span class="syn-kw">local</span> <span class="syn-var">rate</span> = <span class="syn-fn">tonumber</span>(<span class="syn-var">ARGV</span>[<span class="syn-num">2</span>])
+<span class="syn-kw">local</span> <span class="syn-var">now</span> = <span class="syn-fn">tonumber</span>(<span class="syn-var">ARGV</span>[<span class="syn-num">3</span>])
+
+<span class="syn-kw">local</span> <span class="syn-var">data</span> = <span class="syn-var">redis.call</span>(<span class="syn-str">"HMGET"</span>, <span class="syn-var">key</span>, <span class="syn-str">"tokens"</span>, <span class="syn-str">"last_refill"</span>)
+<span class="syn-kw">local</span> <span class="syn-var">tokens</span> = <span class="syn-fn">tonumber</span>(<span class="syn-var">data</span>[<span class="syn-num">1</span>]) <span class="syn-kw">or</span> <span class="syn-var">capacity</span>
+<span class="syn-kw">local</span> <span class="syn-var">last_refill</span> = <span class="syn-fn">tonumber</span>(<span class="syn-var">data</span>[<span class="syn-num">2</span>]) <span class="syn-kw">or</span> <span class="syn-var">now</span>
+
+<span class="syn-cm">-- پڕکرنا تۆکنان ل سەر بنەمایێ دەمێ دەربازبووی</span>
+<span class="syn-kw">local</span> <span class="syn-var">elapsed</span> = <span class="syn-var">now</span> - <span class="syn-var">last_refill</span>
+<span class="syn-var">tokens</span> = <span class="syn-fn">math.min</span>(<span class="syn-var">capacity</span>, <span class="syn-var">tokens</span> + <span class="syn-var">elapsed</span> * <span class="syn-var">rate</span>)
+
+<span class="syn-kw">if</span> <span class="syn-var">tokens</span> >= <span class="syn-num">1</span> <span class="syn-kw">then</span>
+  <span class="syn-var">tokens</span> = <span class="syn-var">tokens</span> - <span class="syn-num">1</span>
+  <span class="syn-var">redis.call</span>(<span class="syn-str">"HMSET"</span>, <span class="syn-var">key</span>, <span class="syn-str">"tokens"</span>, <span class="syn-var">tokens</span>, <span class="syn-str">"last_refill"</span>, <span class="syn-var">now</span>)
+  <span class="syn-var">redis.call</span>(<span class="syn-str">"EXPIRE"</span>, <span class="syn-var">key</span>, <span class="syn-fn">math.ceil</span>(<span class="syn-var">capacity</span> / <span class="syn-var">rate</span>))
+  <span class="syn-kw">return</span> {<span class="syn-num">1</span>, <span class="syn-var">tokens</span>}
+<span class="syn-kw">end</span>
+
+<span class="syn-var">redis.call</span>(<span class="syn-str">"HMSET"</span>, <span class="syn-var">key</span>, <span class="syn-str">"tokens"</span>, <span class="syn-var">tokens</span>, <span class="syn-str">"last_refill"</span>, <span class="syn-var">now</span>)
+<span class="syn-kw">return</span> {<span class="syn-num">0</span>, <span class="syn-num">0</span>}</code></pre>
+</div>
+
+<h2>بۆچی Lua؟</h2>
+<p>Redis سکریپتێ Lua ب شێوازەکێ**
+<strong>ئاتۆمیک (Atomic)</strong> جێبەجێ دکەت — چ فەرمانێن دی نەشێن د ناڤبەرا خویندن و نڤیسینان دا بچنە د ناڤبەری دا. ئەڤە کێشەیێن ڕەیس (Race Conditions) ژ ناڤ دبرت بێی کو پێدڤی ب لۆکێ بەلاڤبووی (Distributed Lock) هەبیت.</p>
+
+<h3>ژمارەیێن کارایی</h3>
+<p>د ئێک ئینستانسا Redis دا، ئەڤ سکریپتە نێزیکی ~١٢٠k داواکاریان د چرکەیەکێ دا (~120k req/sec) دگریت ب لاتەنسییا p99 کو کێمترە ژ ١ms. ب ڕێکا Redis Cluster، تو دشێی ب شێوازەکێ ئاسۆیی (Horizontally) سیستەمی سکەیل بکەی ب ڕێکا بەلاڤکرنا کلیلان (Sharding).</p>
+
+<h2>ئەنجام</h2>
+<ul>
+  <li>تۆکن باکیت لیمیتەرەکێ ڕێژەیی یێ ب هێز ددەست خۆ ڤە دگریت ب ڕێکا ڕێپێدانا تەقینێن دەمی (Burst).</li>
+  <li>سکریپتێ Lua د ناڤ Redis دا ئاتۆمیسیتییەکا تەمام ددەت بێی پێدڤی ب لۆک (Locks).</li>
+  <li>هەمیشە TTL دابنێ بۆ ڕێگریکرن ژ تەقینا میمۆریێ (Memory Leak) ژ بەر کلیلێن کۆن.</li>
+  <li>تێست بکە د بن بارودۆخێ هاوکاتیێ دا (Concurrency) — کێشەیێن ڕەیس (Race Conditions) تەنێ د بن بارگرانی و لۆدێ گران دا دیار دبن.</li>
+</ul>
+`
+  },
+  {
+    id: 3,
+    title: "کۆنفیگی Neovim: لە Vim بۆ جێگرەوەی IDE ی تەواو",
+    excerpt: "چۆن لە VS Code گەیشتم بۆ Neovim بە LSP، Treesitter، و lazy.nvim — و بۆچی هەرگێز ناگەڕێمەوە.",
+    tag: "tools",
+    date: "٢٩ تشرینی دووەم، ٢٠٢٤",
+    readTime: "١٠ خولەک",
+    views: "٥.٧k",
+    codePreview: `<span class="syn-cm">-- lazy.nvim plugin spec</span>\n{\n  <span class="syn-str">"nvim-treesitter/nvim-treesitter"</span>,\n  <span class="syn-prop">build</span> = <span class="syn-str">":TSUpdate"</span>,\n  <span class="syn-prop">config</span> = <span class="syn-kw">function</span>()\n    <span class="syn-fn">require</span>(<span class="syn-str">"nvim-treesitter.configs"</span>).<span class="syn-fn">setup</span>({\n      <span class="syn-prop">highlight</span> = { <span class="syn-prop">enable</span> = <span class="syn-kw">true</span> },\n      <span class="syn-prop">indent</span> = { <span class="syn-prop">enable</span> = <span class="syn-kw">true</span> },\n    })\n  <span class="syn-kw">end</span>,\n}`,
+    content: `
+<h2>گەشتەکە</h2>
+<p>٤ ساڵ VS Code بەکارهێنا. باشە — بەڵام هەمیشە دەمبیست لەسەر خێرایی Neovim و هەستی "ماستەری" لە ئێدیتنی مۆداڵ. لە دوای <strong>٣ هەفتەی گۆڕانکاری</strong>، بەرهەمدار بووم. لە دوای ٢ مانگ، خێراتر بووم لە VS Code.</p>
+
+<h2>پێکهاتەی کۆنفیگ</h2>
+<p>بە <strong>lazy.nvim</strong>، بەڕێوەبردنی پلاگین دیکلاراتیڤییە و بە دیفۆڵت لەیزی لۆد دەکرێت:</p>
+
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">Lua</span>
+    <button class="code-copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="mdi:content-copy"></span> Copy</button>
+  </div>
+  <pre><code><span class="syn-cm">-- ~/.config/nvim/init.lua</span>
+<span class="syn-kw">local</span> <span class="syn-var">lazy</span> = <span class="syn-fn">require</span>(<span class="syn-str">"lazy"</span>)
+<span class="syn-var">lazy</span>.<span class="syn-fn">setup</span>({
+  {
+    <span class="syn-str">"folke/tokyonight.nvim"</span>,
+    <span class="syn-prop">lazy</span> = <span class="syn-kw">false</span>,
+    <span class="syn-prop">priority</span> = <span class="syn-num">1000</span>,
+    <span class="syn-prop">config</span> = <span class="syn-kw">function</span>()
+      <span class="syn-var">vim.cmd</span>(<span class="syn-str">"colorscheme tokyonight"</span>)
+    <span class="syn-kw">end</span>,
+  },
+
+  {
+    <span class="syn-str">"neovim/nvim-lspconfig"</span>,
+    <span class="syn-prop">dependencies</span> = {
+      <span class="syn-str">"hrsh7th/cmp-nvim-lsp"</span>,
+      <span class="syn-str">"hrsh7th/nvim-cmp"</span>,
+    },
+    <span class="syn-prop">config</span> = <span class="syn-kw">function</span>()
+      <span class="syn-kw">local</span> <span class="syn-var">lspconfig</span> = <span class="syn-fn">require</span>(<span class="syn-str">"lspconfig"</span>)
+      <span class="syn-var">lspconfig</span>.<span class="syn-var">tsserver</span>.<span class="syn-fn">setup</span>({})
+      <span class="syn-var">lspconfig</span>.<span class="syn-var">rust_analyzer</span>.<span class="syn-fn">setup</span>({})
+      <span class="syn-var">lspconfig</span>.<span class="syn-var">gopls</span>.<span class="syn-fn">setup</span>({})
+    <span class="syn-kw">end</span>,
+  },
+
+  {
+    <span class="syn-str">"nvim-treesitter/nvim-treesitter"</span>,
+    <span class="syn-prop">build</span> = <span class="syn-str">":TSUpdate"</span>,
+    <span class="syn-prop">config</span> = <span class="syn-kw">function</span>()
+      <span class="syn-fn">require</span>(<span class="syn-str">"nvim-treesitter.configs"</span>).<span class="syn-fn">setup</span>({
+        <span class="syn-prop">ensure_installed</span> = { <span class="syn-str">"typescript"</span>, <span class="syn-str">"rust"</span>, <span class="syn-str">"go"</span>, <span class="syn-str">"lua"</span> },
+        <span class="syn-prop">highlight</span> = { <span class="syn-prop">enable</span> = <span class="syn-kw">true</span> },
+        <span class="syn-prop">indent</span> = { <span class="syn-prop">enable</span> = <span class="syn-kw">true</span> },
+      })
+    <span class="syn-kw">end</span>,
+  },
+})</code></pre>
+</div>
+
+<h2>کییماپە بەهێزەکان</h2>
+<ul>
+  <li><code>gd</code> — بڕۆ بۆ پێناسە (LSP)</li>
+  <li><code>K</code> — هوڤەری دۆکیومێنتەیشن</li>
+  <li><code>ca</code> — کۆد ئەکشن (چارەسەری خێرا، ڕیفاکتۆر)</li>
+  <li><code>gr</code> — دۆزینەوەی ڕیفەرێنسەکان</li>
+  <li><code>&lt;leader&gt;ff</code> — فاززی فایند فایلەکان (Telescope)</li>
+  <li><code>&lt;leader&gt;rg</code> — لایڤ گریپ</li>
+</ul>
+
+<h2>ئەنجامەکە</h2>
+<p>کاتی ستارتئەپ: <strong>٢٣ms</strong>. بەکارهێنانی مەمۆری بە ٣ سێرڤەری LSP: <strong>~١٨٠MB</strong>. بۆ بەراوردکردن، VS Code بە هەمان پرۆژە: ~١.٢GB. جیاوازی خێرایی تەنها ژمارە نییە — ئەوە شێوازی هاوکەوتنت لەگەڵ ئێدیتەرەکە دەگۆڕێت.</p>
+`
+  },
+  {
+    id: 4,
+    title: "پرسیتی کۆنتەینەری CSS هەموو شتێکی گۆڕی",
+    excerpt: "پرسیتی کۆنتەینەر لە ئێستادا هەن. ئێستا چۆن جێی میدیا کوێری دەگرنەوە بۆ دیزاینی ڕێسپۆنسیڤ لە ئاستی کۆمپۆنێنت.",
+    tag: "frontend",
+    date: "٢٠ تشرینی دووەم، ٢٠٢٤",
+    readTime: "٦ خولەک",
+    views: "١.٨k",
+    codePreview: `<span class="syn-tag">.card</span> {\n  <span class="syn-prop">container-type</span>: <span class="syn-str">inline-size</span>;\n  <span class="syn-prop">container-name</span>: <span class="syn-str">card</span>;\n}\n\n<span class="syn-kw">@container</span> <span class="syn-str">card</span> (<span class="syn-prop">min-width</span>: <span class="syn-num">400px</span>) {\n  <span class="syn-tag">.card__content</span> {\n    <span class="syn-prop">flex-direction</span>: <span class="syn-str">row</span>;\n  }\n}`,
+    content: `
+<h2>کێشەی میدیا کوێری</h2>
+<p>میدیا کوێری وەڵام دەداتەوە بۆ قەبارەی <strong>ڤیوپۆرت</strong>. بەڵام کۆمپۆنێنتەکان نائاگان لە ڤیوپۆرت — ئاگایان لە <strong>کۆنتەینەر</strong>ی خۆیان هەیە. کارتی سایدبار و کارتی فول-ویدس لەوانەیە هەمان مارکئەپیان هەبێت بەڵام پێویستیان بە لایەوتی جیاواز هەبێت.</p>
+
+<h2>پرسیتی کۆنتەینەر یارمەتییەکە</h2>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">CSS</span>
+    <button class="code-copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="mdi:content-copy"></span> Copy</button>
+  </div>
+  <pre><code><span class="syn-tag">.card</span> {
+  <span class="syn-prop">container-type</span>: <span class="syn-str">inline-size</span>;
+  <span class="syn-prop">container-name</span>: <span class="syn-str">card</span>;
+  <span class="syn-prop">border-radius</span>: <span class="syn-num">12px</span>;
+  <span class="syn-prop">overflow</span>: <span class="syn-str">hidden</span>;
+}
+
+<span class="syn-tag">.card__body</span> {
+  <span class="syn-prop">display</span>: <span class="syn-str">flex</span>;
+  <span class="syn-prop">flex-direction</span>: <span class="syn-str">column</span>;
+  <span class="syn-prop">gap</span>: <span class="syn-num">12px</span>;
+}
+
+<span class="syn-kw">@container</span> <span class="syn-str">card</span> (<span class="syn-prop">min-width</span>: <span class="syn-num">400px</span>) {
+  <span class="syn-tag">.card__body</span> {
+    <span class="syn-prop">flex-direction</span>: <span class="syn-str">row</span>;
+    <span class="syn-prop">align-items</span>: <span class="syn-str">center</span>;
+  }
+}
+
+<span class="syn-kw">@container</span> <span class="syn-str">card</span> (<span class="syn-prop">min-width</span>: <span class="syn-num">600px</span>) {
+  <span class="syn-tag">.card__title</span> {
+    <span class="syn-prop">font-size</span>: <span class="syn-num">24px</span>;
+  }
+}</code></pre>
+</div>
+
+<h2>پشتگیری براوزەر</h2>
+<p>لە کۆتاییی ٢٠٢٤، پرسیتی کۆنتەینەر لە <strong>هەموو براوزەرە سەرەکییەکان</strong> پشتگیری دەکرێت — Chrome ١٠٥+، Firefox ١١٠+، Safari ١٦+. ئەمە ٩٢٪+ تەشەری جیهانییە. سەلامەتە بۆ بەکارهێنان لە پرۆداکشن.</p>
+
+<h3>گۆڕانی مێنتال مۆدێل</h3>
+<p>وازبەرە لە بیرکردنەوەی "ئەمە لەسەر مۆبایل چۆن دەچێت؟" و دەست پێبکە بە بیرکردنەوەی "ئەمە کاتێک <strong>شوێنی پێویست نەبوو</strong> چۆن دەچێت؟" کۆمپۆنێنتەکە دەبێت بە ڕاستی خۆراکی بێت.</p>
+`
+  },
+  {
+    id: 5,
+    title: "ئۆپتیمایزکردنی PostgreSQL: لە ٢ چرکە بۆ ٥٠ میلیچرکە",
+    excerpt: "تەکنیکە ڕاستەقینەکانی ئۆپتیمایزکردنی PostgreSQL — ستراتیژییەکانی ئیندێکس، خوێندنەوەی EXPLAIN ANALYZE، و نووسینەوەی کوێری کە API یەکەمان ڕزگار کرد.",
+    tag: "backend",
+    date: "١٢ تشرینی دووەم، ٢٠٢٤",
+    readTime: "١٥ خولەک",
+    views: "٤.٢k",
+    codePreview: `<span class="syn-cm">-- پێشتر: ٢.١s سکانی سیکوێنشاڵ</span>\n<span class="syn-kw">SELECT</span> * <span class="syn-kw">FROM</span> <span class="syn-var">orders</span>\n<span class="syn-kw">WHERE</span> <span class="syn-var">created_at</span> > <span class="syn-str">'2024-01-01'</span>\n  <span class="syn-kw">AND</span> <span class="syn-var">status</span> = <span class="syn-str">'completed'</span>;\n\n<span class="syn-cm">-- دواتر: ٤٨ms سکانی ئیندێکس</span>\n<span class="syn-cm">-- کۆمپۆزیت ئیندێکس زیادکرا</span>\n<span class="syn-kw">CREATE INDEX</span> <span class="syn-var">idx_orders_status_date</span>\n  <span class="syn-kw">ON</span> <span class="syn-var">orders</span> (<span class="syn-var">status</span>, <span class="syn-var">created_at</span>);`,
+    content: `
+<h2>ڕەوتەکە</h2>
+<p>داشبۆردی ئانالایتیکسمان <strong>٢+ چرکە</strong> دەخایەند بۆ لۆد کردن. هۆکاری سەرەکی؟ یەک کوێری کە ٣.٢ ملیۆن ڕۆی سکان دەکرد بۆ گەڕاندنی ٥٠٠ ئەنجام. ئێستا چۆن چارەسەرمان کرد:</p>
+
+<h2>هەنگاوی ١: EXPLAIN ANALYZE بخوێنەرەوە</h2>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">SQL</span>
+    <button class="code-copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="mdi:content-copy"></span> Copy</button>
+  </div>
+  <pre><code><span class="syn-kw">EXPLAIN ANALYZE</span>
+<span class="syn-kw">SELECT</span> <span class="syn-var">o</span>.<span class="syn-var">id</span>, <span class="syn-var">o</span>.<span class="syn-var">user_id</span>, <span class="syn-var">o</span>.<span class="syn-var">total</span>, <span class="syn-var">o</span>.<span class="syn-var">status</span>, <span class="syn-var">o</span>.<span class="syn-var">created_at</span>
+<span class="syn-kw">FROM</span> <span class="syn-var">orders</span> <span class="syn-var">o</span>
+<span class="syn-kw">WHERE</span> <span class="syn-var">o</span>.<span class="syn-var">status</span> = <span class="syn-str">'completed'</span>
+  <span class="syn-kw">AND</span> <span class="syn-var">o</span>.<span class="syn-var">created_at</span> >= <span class="syn-str">'2024-01-01'</span>
+<span class="syn-kw">ORDER BY</span> <span class="syn-var">o</span>.<span class="syn-var">created_at</span> <span class="syn-kw">DESC</span>
+<span class="syn-kw">LIMIT</span> <span class="syn-num">50</span>;
+
+<span class="syn-cm">-- ئەنجام: Seq Scan on orders (cost=0.00..82345.00)</span>
+<span class="syn-cm">-- Rows Removed by Filter: 3,150,000</span>
+<span class="syn-cm">-- Execution Time: 2143.287 ms</span></code></pre>
+</div>
+
+<h2>هەنگاوی ٢: ئیندێکسی دروست</h2>
+<p>پوینتی سەرەکی: <strong>ڕیزبەندی کۆلۆم لە ئیندێکسی کۆمپۆزیتدا گرنگە</strong>. پێویستمان بە کۆلۆمی یەکسانە یەکەم، پاشان کۆلۆمی ڕەینج:</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">SQL</span>
+    <button class="code-copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="mdi:content-copy"></span> Copy</button>
+  </div>
+  <pre><code><span class="syn-cm">-- ڕاست: کۆلۆمی یەکسانە یەکەم</span>
+<span class="syn-kw">CREATE INDEX CONCURRENTLY</span> <span class="syn-var">idx_orders_status_created</span>
+  <span class="syn-kw">ON</span> <span class="syn-var">orders</span> (<span class="syn-var">status</span>, <span class="syn-var">created_at</span> <span class="syn-kw">DESC</span>);
+
+<span class="syn-cm">-- چەوت: کۆلۆمی ڕەینج یەکەم (ئیندێکس بۆ یەکسانی نابەکاتەوە)</span>
+<span class="syn-kw">CREATE INDEX</span> <span class="syn-var">idx_orders_created_status</span>
+  <span class="syn-kw">ON</span> <span class="syn-var">orders</span> (<span class="syn-var">created_at</span>, <span class="syn-var">status</span>);</code></pre>
+</div>
+
+<h2>هەنگاوی ٣: ئیندێکسی کەڤەرینگ</h2>
+<p>بە دانانی کۆلۆمەکانی SELECT لە ئیندێکسدا، لە هیپەوە تەواو ڕزگار دەبینەوە:</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">SQL</span>
+    <button class="code-copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="mdi:content-copy"></span> Copy</button>
+  </div>
+  <pre><code><span class="syn-kw">CREATE INDEX CONCURRENTLY</span> <span class="syn-var">idx_orders_covering</span>
+  <span class="syn-kw">ON</span> <span class="syn-var">orders</span> (<span class="syn-var">status</span>, <span class="syn-var">created_at</span> <span class="syn-kw">DESC</span>)
+  <span class="syn-kw">INCLUDE</span> (<span class="syn-var">user_id</span>, <span class="syn-var">total</span>);
+
+<span class="syn-cm">-- ئێستا: Index Only Scan (48ms)</span>
+<span class="syn-cm">-- هیچ هیپ فێچێک پێویست ناکات!</span></code></pre>
+</div>
+
+<h2>ئەنجامەکان</h2>
+<ul>
+  <li>کاتی کوێری: <strong>٢,١٤٣ms → ٤٨ms</strong> (کەمکردنەوەی ٩٧.٨٪)</li>
+  <li>بافەر هیتس: ٣.٢M → ١٢ (ئیندێکس-ئۆنلی سکان)</li>
+  <li>کاتی لۆدی داشبۆرد: ٤.١s → ٠.٨s</li>
+</ul>
+`
+  },
+  {
+    id: 6,
+    title: "وۆرکفڵۆی Tmux بۆ گەشەپێدەرێ مۆدێرن",
+    excerpt: "سێتئەپێ tmux یێ من دگەل pain-control، برێڤەبرنا سێشنان، و کییماپێن کو مەلتیپلێکسینگا تێرمیناڵی ب ڕاستی خۆش دکەن.",
+    tag: "tools",
+    date: "5 تشرینی دووەم، 2026",
+    readTime: "٧ خولەک",
+    views: "2.9k",
+    codePreview: `<span class="syn-cm"># ~/.tmux.conf</span>\n<span class="syn-fn">set</span> -g <span class="syn-prop">prefix</span> <span class="syn-str">C-a</span>\n<span class="syn-fn">set</span> -g <span class="syn-prop">mouse</span> <span class="syn-str">on</span>\n<span class="syn-fn">set</span> -g <span class="syn-prop">status-position</span> <span class="syn-str">top</span>\n<span class="syn-fn">set</span> -g <span class="syn-prop">base-index</span> <span class="syn-num">1</span>\n\n<span class="syn-cm"># Vi mode</span>\n<span class="syn-fn">setw</span> -g <span class="syn-prop">mode-keys</span> <span class="syn-str">vi</span>`,
+    content: `
+<h2>بۆچی Tmux؟</h2>
+<p>SSH بکە بۆ سێرڤەری، پەیوەندییا تە پچڕیا، و کارێ تە چوو! بەلێ دگەل tmux، سێشن (Sessions)...<strong>دێ مینن</strong>دچیە دەرێ، دووبارە دکەیەڤە، و ستەیتێ تە دێ وەک خۆ زڤریتەڤە. بۆ گەشەپێدانا ڕیمۆت (Remote Development) چ تشت جهێ وێ ناگرن.</p>
+
+<h2>کۆنفیگێ من</h2>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">Shell</span>
+    <button class="code-copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="mdi:content-copy"></span> Copy</button>
+  </div>
+  <pre><code><span class="syn-cm"># ~/.tmux.conf</span>
+
+<span class="syn-cm"># گۆهرینا پرێفیکسی بۆ Ctrl-a (ب ساناهیتر دەست پێ ڕادگەهیت)
+</span>
+<span class="syn-fn">set</span> -g <span class="syn-prop">prefix</span> <span class="syn-str">C-a</span>
+<span class="syn-fn">unbind</span> <span class="syn-str">C-b</span>
+<span class="syn-fn">bind</span> <span class="syn-str">C-a</span> <span class="syn-fn">send-prefix</span>
+
+<span class="syn-cm"># # کارپێکرنا
+ مۆس</span>
+<span class="syn-fn">set</span> -g <span class="syn-prop">mouse</span> <span class="syn-str">on</span>
+
+<span class="syn-cm"># # دابنانی باری ستەتۆسی ل سەرەڤە
+</span>
+<span class="syn-fn">set</span> -g <span class="syn-prop">status-position</span> <span class="syn-str">top</span>
+
+<span class="syn-cm"> # دەستپێکرنا پەنجەرە و بەشان ژ ژمارە ١
+</span>
+<span class="syn-fn">set</span> -g <span class="syn-prop">base-index</span> <span class="syn-num">1</span>
+<span class="syn-fn">setw</span> -g <span class="syn-prop">pane-base-index</span> <span class="syn-num">1</span>
+
+<span class="syn-cm"># Vi mode بۆ کۆپی مۆد</span>
+<span class="syn-fn">setw</span> -g <span class="syn-prop">mode-keys</span> <span class="syn-str">vi</span>
+<span class="syn-fn">bind</span> <span class="syn-str">-T</span> copy-mode-vi <span class="syn-str">v</span> <span class="syn-fn">send</span> -X <span class="syn-fn">begin-selection</span>
+<span class="syn-fn">bind</span> <span class="syn-str">-T</span> copy-mode-vi <span class="syn-str">y</span> <span class="syn-fn">send</span> -X <span class="syn-fn">copy-pipe-and-cancel</span> <span class="syn-str">"pbcopy"</span>
+
+<span class="syn-cm"># دابەشکرنا بەشان ب نیشانێن | و -
+</span>
+<span class="syn-fn">bind</span> | <span class="syn-fn">split-window</span> -h -c <span class="syn-str">"#{pane_current_path}"</span>
+<span class="syn-fn">bind</span> - <span class="syn-fn">split-window</span> -v -c <span class="syn-str">"#{pane_current_path}"</span>
+
+<span class="syn-cm"># گۆهرینا ب ساناهی یا بەشان ب کلیلێن Alt + تیرۆکێن ئاڕاستەیێ
+</span>
+<span class="syn-fn">bind</span> -n <span class="syn-str">M-Left</span> <span class="syn-fn">select-pane</span> -L
+<span class="syn-fn">bind</span> -n <span class="syn-str">M-Right</span> <span class="syn-fn">select-pane</span> -R
+<span class="syn-fn">bind</span> -n <span class="syn-str">M-Up</span> <span class="syn-fn">select-pane</span> -U
+<span class="syn-fn">bind</span> -n <span class="syn-str">M-Down</span> <span class="syn-fn">select-pane</span> -D</code></pre>
+</div>
+
+<h2> وۆرکفڵۆیێ ڕۆژانە
+</h2>
+<ul>
+  <li><code>tmux new -s project</code> # — دروستکرنا سێشنەکا بناڤ و نیشان
+</li>
+  <li><code>Ctrl-a |</code> — # دابەشکرنا ئاسۆیی (ئێدیتەر | تێرمیناڵ)
+</li>
+  <li><code>Ctrl-a -</code> — دابەشکرنا ستوونی (ئێدیتەر ل سەرەڤە، سێرڤەر ل خوارێ)
+</li>
+  <li><code>Ctrl-a d</code> — دەرکەفتن (سێشن هێشتا کار دکەت)
+</li>
+  <li><code>tmux a -t project</code> —  — دووبارە بەستنەوە ل پاشان
+</li>
+</ul>
+`
+  }
+];
+
+const projects = [
+  {
+    name: "nexus-framework",
+    image: "https://i.ibb.co/zWbzBkMF/EBD80-E31-5-E14-4-CE8-8574-11-BD26947995.png",
+    link: "soon404.html",
+    desc: "# فڕەیمۆرکێ TypeScript یێ فول-ستاک ب ڕاوتینگا فایل-بیسد، کۆمپۆنێنتێن سێرڤەری، و ئاوتی بوێڵت-ئین. وەک Next.js بەس ب ساناهیتر.",
+    lang: "TypeScript",
+    langColor: "#3178c6",
+    stars: "2.3k",
+    forks: "156",
+    topics: ["framework", "typescript", "fullstack", "ssr"]
+  },
+  {
+    name: "tiny-signals",
+    image: "https://i.ibb.co/Z1JcwpXf/1-D5-E18-A7-16-EA-4-DC4-BDA5-0686-C085-F89-C.jpg",
+    link: "soon404.html",
+    desc: "# سیگناڵێن ڕیئاکتیڤ د 200 هێڵان دا. بێ دەپڵۆیس. TypeScript یا تەمام. وەرگرتی ژ Solid.js و Preact Signals.",
+    lang: "TypeScript",
+    langColor: "#3178c6",
+    stars: "858",
+    forks: "42",
+    topics: ["reactive", "signals", "state-management", "tiny"]
+  },
+  {
+    name: "redis-rate-limiter",
+    image: "https://www.image2url.com/r2/default/images/1781101985562-1249a994-dbfb-4594-a0fd-50361ce47bd0.png",
+    link: "soon404.html",
+    desc: "# لیمیتەرێ ڕێژەیا دابەشکری ب ئەلگۆریتمێ تۆکن باکیت دگەل لۆا (Lua) سکریپتا ڕێدیس (Redis) بۆ ئەپەرەیشنێن ئاتۆمیکی.",
+    lang: "Go",
+    langColor: "#00ADD8",
+    stars: "612",
+    forks: "38",
+    topics: ["redis", "rate-limiter", "middleware", "go"]
+  },
+  {
+    name: "dotfiles",
+    image: "https://amiraref.ir/images/dotfiles.png",
+    link: "soon404.html",
+    desc: "کۆنفیگێ کەسی یێ Neovim، tmux، zsh، و Git. ب تەمامی دۆکیومێنتکری و بوتستراپکری ب ئێک سکریپت.",
+    lang: "Lua",
+    langColor: "#000080",
+    stars: "389",
+    forks: "76",
+    topics: ["dotfiles", "neovim", "tmux", "zsh"]
+  },
+  {
+    name: "sql-formatter",
+    image: "https://devutils.com/assets/screenshots/dark/sqlformatter.png",
+    link: "soon404.html",
+    desc: "# فۆرماتەرێ SQL یێ ئۆپینیۆندار (Opinionated) ب پشتگیریا PostgreSQL، MySQL، و SQLite. دگەل پێشکێشکرنا CLI و API یا پرۆگراماتیکی.",
+    lang: "Rust",
+    langColor: "#dea584",
+    stars: "1.1k",
+    forks: "89",
+    topics: ["sql", "formatter", "rust", "cli"]
+  },
+  {
+    name: "devdash",
+    image: "https://media.licdn.com/dms/image/sync/v2/D4D27AQEKWgC4f08TnA/articleshare-shrink_800/B4DZ0poIxAJoAI-/0/1774519881581?e=2147483647&v=beta&t=PAi_-trdwOwo1LdTiglTDm2HuSHeuZeg7jq4j8t0Wmg",
+    link: "soon404.html",
+    desc: "# داشبۆردێ تێرمیناڵی بۆ گەشەپێدەران (Developers) — ستاتێن GitHub، CI/CD، و مەتڕیکسێن سیستەمی، هەمی د ناڤ ئێک TUI (Terminal User Interface) دا.",
+    lang: "Go",
+    langColor: "#00ADD8",
+    stars: "956",
+    forks: "73",
+    topics: ["tui", "dashboard", "terminal", "developer-tools"]
+  }
+];
+
+// ========== RENDER ARTICLES ==========
+function renderArticles(filter = 'all') {
+  const grid = document.getElementById('articlesGrid');
+  const filtered = filter === 'all' ? articles : articles.filter(a => a.tag === filter);
+  const tagLabels = { frontend: 'فڕۆنت ئێند', backend: 'بەک ئێند', tools: 'ئامراز' };
+
+  grid.innerHTML = filtered.map((a, i) => `
+    <div class="article-card reveal reveal-d${Math.min(i + 1, 3)}" data-tag="${a.tag}" onclick="openArticle(${a.id})">
+      <div class="article-code-preview"><pre style="margin:0;white-space:pre-wrap;word-break:break-all;">${a.codePreview}</pre></div>
+      <div class="article-body">
+        <div class="article-tags">
+          <span class="article-tag ${a.tag}">${tagLabels[a.tag]}</span>
+        </div>
+        <div class="article-title">${a.title}</div>
+        <div class="article-excerpt">${a.excerpt}</div>
+        <div class="article-meta">
+          <span><span class="iconify" data-icon="mdi:calendar-outline" style="font-size:14px"></span> ${a.date}</span>
+          <span><span class="iconify" data-icon="mdi:clock-outline" style="font-size:14px"></span> ${a.readTime}</span>
+          <span><span class="iconify" data-icon="mdi:eye-outline" style="font-size:14px"></span> ${a.views}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  setTimeout(() => {
+    document.querySelectorAll('.articles-grid .reveal').forEach(el => observer.observe(el));
+  }, 50);
+}
+
+// ========== RENDER PROJECTS ==========
+function renderProjects() {
+  const grid = document.getElementById('projectsGrid');
+  grid.innerHTML = projects.map((p, i) => `
+    <div class="repo-card reveal reveal-d${Math.min(i + 1, 3)}">
+      <img src="${p.image}" alt="${p.name}" class="repo-card-img">
+      <div class="repo-header">
+        <span class="iconify repo-icon" data-icon="mdi:book-outline"></span>
+        <a href="${p.link}" target="_blank" class="repo-name">${p.name}</a>
+      </div>
+      <div class="repo-desc">${p.desc}</div>
+      <div class="repo-lang-bar">
+        <span class="repo-lang-dot" style="background:${p.langColor}"></span>
+        <span class="repo-lang-name">${p.lang}</span>
+      </div>
+      <div class="repo-stats">
+        <span><span class="iconify" data-icon="mdi:star-outline" style="font-size:14px"></span> ${p.stars}</span>
+        <span><span class="iconify" data-icon="mdi:source-fork" style="font-size:14px"></span> ${p.forks}</span>
+      </div>
+      <div class="repo-topics">
+        ${p.topics.map(t => `<span class="repo-topic">${t}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ========== ARTICLE DETAIL ==========
+function openArticle(id) {
+  const article = articles.find(a => a.id === id);
+  if (!article) return;
+  const tagLabels = { frontend: 'فڕۆنت ئێند', backend: 'بەک ئێند', tools: 'ئامراز' };
+
+  const detail = document.getElementById('articleDetail');
+  detail.innerHTML = `
+    <div class="article-detail-tags">
+      <span class="article-tag ${article.tag}">${tagLabels[article.tag]}</span>
+    </div>
+    <h1 class="article-detail-title">${article.title}</h1>
+    <div class="article-detail-meta">
+      <span><span class="iconify" data-icon="mdi:calendar-outline" style="font-size:15px;vertical-align:middle;margin-right:4px"></span>${article.date}</span>
+      <span><span class="iconify" data-icon="mdi:clock-outline" style="font-size:15px;vertical-align:middle;margin-right:4px"></span>${article.readTime}</span>
+      <span><span class="iconify" data-icon="mdi:eye-outline" style="font-size:15px;vertical-align:middle;margin-right:4px"></span>${article.views} دیتن</span>
+    </div>
+    <div class="article-detail-content">${article.content}</div>
+  `;
+
+  document.getElementById('articleModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeArticle() {
+  document.getElementById('articleModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modalClose').addEventListener('click', closeArticle);
+document.getElementById('articleModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('articleModal')) closeArticle();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeArticle();
+});
+
+// ========== COPY CODE ==========
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    showToast('هاتە کۆپیکرن بۆ کلیپبۆردێ!');
+    btn.innerHTML = '<span class="iconify" data-icon="mdi:check"></span> هاتە کۆپیکرن';
+    setTimeout(() => {
+      btn.innerHTML = '<span class="iconify" data-icon="mdi:content-copy"></span> Copy';
+    }, 2000);
+  });
+}
+
+// ========== TOAST ==========
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ========== TAG FILTER ==========
+document.querySelectorAll('.tag-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderArticles(btn.dataset.tag);
+  });
+});
+
+// ========== NAVIGATION ==========
+const nav = document.getElementById('nav');
+const navLinks = document.querySelectorAll('.nav-links a');
+const sections = ['hero', 'articles', 'projects', 'about'];
+
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+  let current = 'hero';
+  for (const id of sections) {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 150) current = id;
+  }
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.dataset.section === current);
+  });
+});
+
+// Mobile menu
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+  mobileMenu.classList.toggle('open');
+  const icon = hamburger.querySelector('.iconify');
+  icon.dataset.icon = mobileMenu.classList.contains('open') ? 'mdi:close' : 'mdi:menu';
+});
+function closeMobile() {
+  mobileMenu.classList.remove('open');
+  hamburger.querySelector('.iconify').dataset.icon = 'mdi:menu';
+}
+
+// ========== SCROLL REVEAL ==========
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ========== INIT ==========
+renderArticles();
+renderProjects();
+
+// ئەڤ دێڕە زێدە بکە دا کو چاودێرییا پڕۆژەیان بکەت کاتێ سکڕۆڵ دکەی
+setTimeout(() => {
+  document.querySelectorAll('.projects-grid .reveal').forEach(el => observer.observe(el));
+}, 50);
+
+</script>
+</body>
+</html>
